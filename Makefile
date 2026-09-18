@@ -1,0 +1,1 @@
+gcc -o hello_world.exe raylib_basic_window.cpp -Iinclude -Llib -lraylib -lgdi32 -lwinmm
