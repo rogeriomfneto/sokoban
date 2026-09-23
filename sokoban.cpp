@@ -17,9 +17,19 @@ const int yOffset = (windowHeight - gridHeight) / 2;
 
 using namespace std;
 
-class Player {
+enum class Direction {
+    Up,
+    Down,
+    Left,
+    Right
+};
+
+Vector2 applyDirectionToPosition(Vector2 pos, Direction direction);
+
+class Box {
     public:
-        Vector2 pos = {1, 1};
+        Vector2 pos = {2, 2};
+        bool inPlace = false;
 };
 
 class Map {
@@ -27,27 +37,102 @@ class Map {
         char layout[gridLines][gridCols] = {
             {'#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'},
             {'#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#'},
+            {'#', ' ', '.', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '.', ' ', '#'},
             {'#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#'},
             {'#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#'},
             {'#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#'},
             {'#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#'},
-            {'#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#'},
-            {'#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#'},
+            {'#', ' ', '.', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '.', ' ', '#'},
             {'#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#'},
             {'#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'}
         };
+
+        Box boxes[100];
+        int boxCount = 0;
+
+        void placeBoxes(Box newBoxes[], int n) {
+            boxCount = n;
+
+            for (int i = 0; i < n; i++) {
+                Box box = newBoxes[i];
+                boxes[i] = box;
+            }
+        }
+
+        void moveBox(Box* box, Direction direction) {
+            Vector2 pos = applyDirectionToPosition((*box).pos, direction);
+
+            box->pos.x = pos.x;
+            box->pos.y = pos.y;
+            
+
+            if (layout[(int) pos.y][(int) pos.x] == '.') box->inPlace = true;
+            else box->inPlace = false;
+
+        }
+
+        bool canMoveBox(Box box, Direction direction) {
+            Vector2 pos = applyDirectionToPosition(box.pos, direction);
+            int x = pos.x; int y = pos.y;
+
+            if (layout[y][x] != ' ' && layout[y][x] != '.' || getBox(x, y) != nullptr) return false;
+
+            return true;
+        }
+
+        Box* getBox(int x, int y) {
+            for (int i = 0; i < boxCount; i++) {
+                if ((int) boxes[i].pos.x == x && (int) boxes[i].pos.y == y) return &boxes[i];
+            }
+
+            return nullptr;
+        }
 };
 
+class Player {
+    public:
+        Vector2 pos = {5, 5};
 
-void update(Player &player, Map map);
+        void tryMove(Map &map, Direction direction) {
+            Vector2 newPos = applyDirectionToPosition(pos, direction);
+            int x = newPos.x; int y = newPos.y;
+
+            if (map.layout[y][x] == '#') return; 
+
+            Box* box = map.getBox(x, y);
+
+            if (box == nullptr) {
+                pos.x = x;
+                pos.y = y;
+                return;
+            } 
+
+            if (map.canMoveBox(*box, direction)) {
+                map.moveBox(box, direction);
+                pos.x = x;
+                pos.y = y;
+            }
+        }
+};
+
+void update(Player &player, Map &map);
 void draw(Player player, Map map);
 
 int main(void) {
     InitWindow(1280, 720, "Sokoban");
     SetTargetFPS(60);
 
-    Player player;
+    Player player = {gridCols/2, gridLines/2};
     Map map;
+
+    Box boxes[] = {
+        {4, 4},
+        {3, 2},
+        {4, 8},
+        {8, 8}
+    };
+
+    map.placeBoxes(boxes, 4);
 
 
     while (!WindowShouldClose())
@@ -61,29 +146,22 @@ int main(void) {
     return 0;
 }
 
-void update(Player &player, Map map) {
+void update(Player &player, Map &map) {
+    // handle input
     if (IsKeyPressed(KEY_RIGHT)) {
-        char mapTile = map.layout[(int) player.pos.y][(int) player.pos.x + 1];
-        if (mapTile != '#')
-            player.pos.x += 1;
+        player.tryMove(map, Direction::Right);
     }
 
     if (IsKeyPressed(KEY_LEFT)) {
-        char mapTile = map.layout[(int) player.pos.y][(int) player.pos.x -1];
-        if (mapTile != '#')
-            player.pos.x -= 1;
+        player.tryMove(map, Direction::Left);
     }
 
     if (IsKeyPressed(KEY_UP)) {
-        char mapTile = map.layout[(int) player.pos.y - 1][(int) player.pos.x];
-        if (mapTile != '#')
-            player.pos.y -= 1;
+        player.tryMove(map, Direction::Up);
     }
 
     if (IsKeyPressed(KEY_DOWN)) {
-        char mapTile = map.layout[(int) player.pos.y + 1][(int) player.pos.x];
-        if (mapTile != '#')
-            player.pos.y += 1;
+        player.tryMove(map, Direction::Down);
     }
 
     player.pos.x = Clamp(player.pos.x, 0, gridCols - 1);
@@ -95,6 +173,8 @@ void draw(Player player, Map map) {
     BeginDrawing();
     ClearBackground(BLACK);
 
+
+
     // draw map
     for (int i = 0; i < gridLines; i++) {
         for (int j = 0; j < gridCols; j++) {
@@ -103,10 +183,21 @@ void draw(Player player, Map map) {
             if (mapTile == '#') {
                 DrawRectangle(xOffset + j * cellSize, yOffset + i * cellSize, cellSize, cellSize, GRAY);
             }
+
+            if (mapTile == '.') {
+                DrawCircle(xOffset + cellSize/2 + j * cellSize, yOffset + cellSize/2 + i * cellSize, .1 * (cellSize/2), RED);
+            }
         }
     }
 
-    // draws grid
+    // draws boxes
+    for (int i = 0; i < map.boxCount; i++) {
+        Box box = map.boxes[i];
+        Color boxColor = box.inPlace ? YELLOW : BROWN;
+        DrawRectangle(xOffset + box.pos.x * cellSize, yOffset + box.pos.y * cellSize, cellSize, cellSize, boxColor);
+    }
+
+     // draws grid
     for (int i = 0; i < gridCols; i++) {
         DrawLine(xOffset + i * cellSize,  yOffset, xOffset + i * cellSize, yOffset + gridHeight, WHITE);    
     }
@@ -119,8 +210,21 @@ void draw(Player player, Map map) {
 
     DrawLine(xOffset,  yOffset + gridLines * cellSize, xOffset + gridWidth, yOffset + gridLines * cellSize, WHITE);
 
+
     // draws player
-    DrawCircle(xOffset + cellSize/2 + player.pos.x * cellSize, yOffset + cellSize/2 + player.pos.y * cellSize, .8 * (cellSize/2), YELLOW);
+    DrawCircle(xOffset + cellSize/2 + player.pos.x * cellSize, yOffset + cellSize/2 + player.pos.y * cellSize, .8 * (cellSize/2), BLUE);
 
     EndDrawing();
+}
+
+Vector2 applyDirectionToPosition(Vector2 pos, Direction direction) {
+    if (direction == Direction::Up) {
+        return {pos.x, pos.y - 1};
+    } else if (direction == Direction::Down) {
+        return {pos.x, pos.y + 1};
+    } else if (direction == Direction::Left) {
+        return {pos.x - 1, pos.y};
+    } else {
+        return {pos.x + 1, pos.y};
+    }
 }
