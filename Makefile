@@ -1,6 +1,6 @@
 CXX = g++
 
-CXXFLAGS = -Iinclude
+CXXFLAGS = -std=c++17 -Iinclude
 LDFLAGS = -Llib
 LIBS = -lraylib -lgdi32 -lwinmm
 

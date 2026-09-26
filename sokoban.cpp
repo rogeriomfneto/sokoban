@@ -1,19 +1,16 @@
+#include <iostream>
+#include <cstdint>
+#include <algorithm>
 #include <raylib.h>
 #include <raymath.h>
-#include <iostream>
+#include <tileson.hpp>
 
-const int windowWidth = 1280;
-const int windowHeight = 720;
+const int SCREEN_WIDTH = 1280;
+const int SCREEN_HEIGHT = 720;
 
-const int gridCols = 20;
-const int gridLines = 10;
-const int cellSize = 50;
-
-const int gridWidth = gridCols * cellSize;
-const int gridHeight = gridLines * cellSize;
-
-const int xOffset = (windowWidth - gridWidth) / 2;
-const int yOffset = (windowHeight - gridHeight) / 2;
+const int TILE_SIZE = 16;
+const int PLAYER_SPRITE_SIZE = 16;
+const int SCREEN_TILE_SIZE = 50;
 
 using namespace std;
 
@@ -34,23 +31,43 @@ class Box {
 
 class Map {
     public:
-        char layout[gridLines][gridCols] = {
-            {'#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'},
-            {'#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#'},
-            {'#', ' ', '.', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '.', ' ', '#'},
-            {'#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#'},
-            {'#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#'},
-            {'#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#'},
-            {'#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#'},
-            {'#', ' ', '.', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '.', ' ', '#'},
-            {'#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#'},
-            {'#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'}
-        };
+        int layout[50][50];
 
-        Box boxes[100];
+        int width = 0;
+        int height = 0;
+
+        Texture2D texture; 
+
+        Box boxes[50];
         int boxCount = 0;
 
-        void placeBoxes(Box newBoxes[], int n) {
+        void loadMap(tson::Map& tileson) {
+            width = tileson.getSize().x;
+            height = tileson.getSize().y;
+            auto& layer = tileson.getLayers()[0];
+
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    int index = y * width + x;
+                    int gid = layer.getData()[index];
+                    layout[y][x] = gid;
+                }
+            }
+        }
+
+        bool isWall(int x, int y) {
+            return layout[y][x] == 1 || layout[y][x] == 2 || layout[y][x] == 3;
+        }
+
+        bool isEmpty(int x, int y) {
+            return layout[y][x] == 6 || layout[y][x] == 4 || layout[y][x] == 7;
+        }
+
+        bool isButton(int x, int y) {
+            return layout[y][x] == 4;
+        }
+
+        void loadBoxes(Box newBoxes[], int n) {
             boxCount = n;
 
             for (int i = 0; i < n; i++) {
@@ -66,7 +83,7 @@ class Map {
             box->pos.y = pos.y;
             
 
-            if (layout[(int) pos.y][(int) pos.x] == '.') box->inPlace = true;
+            if (layout[(int) pos.y][(int) pos.x] == 4) box->inPlace = true;
             else box->inPlace = false;
 
         }
@@ -75,7 +92,7 @@ class Map {
             Vector2 pos = applyDirectionToPosition(box.pos, direction);
             int x = pos.x; int y = pos.y;
 
-            if (layout[y][x] != ' ' && layout[y][x] != '.' || getBox(x, y) != nullptr) return false;
+            if (!isEmpty(pos.x, pos.y) || getBox(x, y) != nullptr) return false;
 
             return true;
         }
@@ -91,13 +108,14 @@ class Map {
 
 class Player {
     public:
-        Vector2 pos = {5, 5};
+        Vector2 pos = {0, 0};
+        Texture2D texture;
 
         void tryMove(Map &map, Direction direction) {
             Vector2 newPos = applyDirectionToPosition(pos, direction);
             int x = newPos.x; int y = newPos.y;
 
-            if (map.layout[y][x] == '#') return; 
+            if (map.isWall(x, y)) return; 
 
             Box* box = map.getBox(x, y);
 
@@ -116,14 +134,27 @@ class Player {
 };
 
 void update(Player &player, Map &map);
-void draw(Player player, Map map);
+void draw(Player player, Map map,  int xOffset, int yOffset);
 
 int main(void) {
-    InitWindow(1280, 720, "Sokoban");
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Sokoban");
     SetTargetFPS(60);
 
-    Player player = {gridCols/2, gridLines/2};
+    Texture2D tilesetTexture = LoadTexture("assets/tilesets/map.png");
+    Texture2D playerTexture = LoadTexture("assets/sprites/player-idle.png");
+    
     Map map;
+    tson::Tileson parser;
+
+    std::unique_ptr<tson::Map> tilesonMap = parser.parse("assets/levels/level0.tmj");
+
+    if (!tilesonMap || tilesonMap->getStatus() != tson::ParseStatus::OK)
+    {
+        std::cout << "Failed to load map\n";
+        return 1;
+    }
+
+    map.loadMap(*tilesonMap);
 
     Box boxes[] = {
         {4, 4},
@@ -132,13 +163,18 @@ int main(void) {
         {8, 8}
     };
 
-    map.placeBoxes(boxes, 4);
+    map.loadBoxes(boxes, 4);
+    map.texture = tilesetTexture;
 
+    Player player = {{map.width/2, map.height/2}, playerTexture};
+
+    const int xOffset = (SCREEN_WIDTH - map.width * SCREEN_TILE_SIZE) / 2;
+    const int yOffset = (SCREEN_HEIGHT - map.height * SCREEN_TILE_SIZE) / 2;
 
     while (!WindowShouldClose())
     {
         update(player, map);
-        draw(player, map);
+        draw(player, map, xOffset, yOffset);
     }
 
     CloseWindow();
@@ -164,55 +200,115 @@ void update(Player &player, Map &map) {
         player.tryMove(map, Direction::Down);
     }
 
-    player.pos.x = Clamp(player.pos.x, 0, gridCols - 1);
-    player.pos.y = Clamp(player.pos.y, 0, gridLines - 1);
+    player.pos.x = Clamp(player.pos.x, 0, map.width - 1);
+    player.pos.y = Clamp(player.pos.y, 0, map.height - 1);
 
 }
 
-void draw(Player player, Map map) {
+void draw(Player player, Map map, int xOffset, int yOffset) {
     BeginDrawing();
     ClearBackground(BLACK);
 
-
-
     // draw map
-    for (int i = 0; i < gridLines; i++) {
-        for (int j = 0; j < gridCols; j++) {
-            char mapTile = map.layout[i][j];
+    for (int y = 0; y < map.height; y++) {
+        for (int x = 0; x < map.width; x++) {
+            int mapTile = map.layout[y][x];
 
-            if (mapTile == '#') {
-                DrawRectangle(xOffset + j * cellSize, yOffset + i * cellSize, cellSize, cellSize, GRAY);
-            }
+            if (mapTile == 0)
+                continue;
 
-            if (mapTile == '.') {
-                DrawCircle(xOffset + cellSize/2 + j * cellSize, yOffset + cellSize/2 + i * cellSize, .1 * (cellSize/2), RED);
-            }
+            int localTileId = mapTile - 1;
+
+            int tilesetColumns = map.texture.width / TILE_SIZE;
+
+            int tileX = localTileId % tilesetColumns;
+            int tileY = localTileId / tilesetColumns;
+
+            Rectangle source =
+            {
+                tileX * TILE_SIZE,
+                tileY * TILE_SIZE,
+                TILE_SIZE,
+                TILE_SIZE
+            };
+
+            Rectangle destination =
+            {
+                xOffset + x * SCREEN_TILE_SIZE,
+                yOffset + y * SCREEN_TILE_SIZE,
+                SCREEN_TILE_SIZE,
+                SCREEN_TILE_SIZE
+            };
+
+            DrawTexturePro(
+                map.texture,
+                source,
+                destination,
+                { 0, 0 },
+                0,
+                WHITE
+            );
+
         }
     }
 
     // draws boxes
     for (int i = 0; i < map.boxCount; i++) {
         Box box = map.boxes[i];
-        Color boxColor = box.inPlace ? YELLOW : BROWN;
-        DrawRectangle(xOffset + box.pos.x * cellSize, yOffset + box.pos.y * cellSize, cellSize, cellSize, boxColor);
+
+        Rectangle source =
+        {
+            0 * TILE_SIZE,
+            4 * TILE_SIZE,
+            TILE_SIZE,
+            TILE_SIZE
+        };
+
+        Rectangle destination =
+        {
+            xOffset + box.pos.x * SCREEN_TILE_SIZE,
+            yOffset + box.pos.y * SCREEN_TILE_SIZE,
+            SCREEN_TILE_SIZE,
+            SCREEN_TILE_SIZE
+        };
+
+        DrawTexturePro(
+            map.texture,
+            source,
+            destination,
+            { 0, 0 },
+            0,
+            WHITE
+        );
+
     }
-
-     // draws grid
-    for (int i = 0; i < gridCols; i++) {
-        DrawLine(xOffset + i * cellSize,  yOffset, xOffset + i * cellSize, yOffset + gridHeight, WHITE);    
-    }
-
-    DrawLine(xOffset + gridCols * cellSize,  yOffset, xOffset + gridCols * cellSize, yOffset + gridHeight, WHITE);
-
-    for (int i = 0; i < gridLines; i++) {
-        DrawLine(xOffset,  yOffset + i * cellSize, xOffset + gridWidth, yOffset + i * cellSize, WHITE);    
-    }
-
-    DrawLine(xOffset,  yOffset + gridLines * cellSize, xOffset + gridWidth, yOffset + gridLines * cellSize, WHITE);
 
 
     // draws player
-    DrawCircle(xOffset + cellSize/2 + player.pos.x * cellSize, yOffset + cellSize/2 + player.pos.y * cellSize, .8 * (cellSize/2), BLUE);
+    Rectangle source =
+        {
+            0,
+            0,
+            PLAYER_SPRITE_SIZE,
+            PLAYER_SPRITE_SIZE
+        };
+
+        Rectangle destination =
+        {
+            xOffset + player.pos.x * SCREEN_TILE_SIZE,
+            yOffset + player.pos.y * SCREEN_TILE_SIZE,
+            SCREEN_TILE_SIZE,
+            SCREEN_TILE_SIZE
+        };
+
+        DrawTexturePro(
+            player.texture,
+            source,
+            destination,
+            { 0, 0 },
+            0,
+            WHITE
+        );
 
     EndDrawing();
 }
