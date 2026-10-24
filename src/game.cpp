@@ -39,17 +39,17 @@ void draw(Player player, Map map, int xOffset, int yOffset) {
             int tileY = localTileId / tilesetColumns;
 
             Rectangle source = {
-                tileX * TILE_SIZE,
-                tileY * TILE_SIZE,
-                TILE_SIZE,
-                TILE_SIZE
+                (float)(tileX * TILE_SIZE),
+                (float)(tileY * TILE_SIZE),
+                (float)TILE_SIZE,
+                (float)TILE_SIZE
             };
 
             Rectangle destination = {
-                xOffset + x * SCREEN_TILE_SIZE,
-                yOffset + y * SCREEN_TILE_SIZE,
-                SCREEN_TILE_SIZE,
-                SCREEN_TILE_SIZE
+                (float)(xOffset + x * SCREEN_TILE_SIZE),
+                (float)(yOffset + y * SCREEN_TILE_SIZE),
+                (float)SCREEN_TILE_SIZE,
+                (float)SCREEN_TILE_SIZE
             };
 
             DrawTexturePro(
@@ -67,17 +67,17 @@ void draw(Player player, Map map, int xOffset, int yOffset) {
         Box box = map.boxes[i];
 
         Rectangle source = {
-            0 * TILE_SIZE,
-            4 * TILE_SIZE,
-            TILE_SIZE,
-            TILE_SIZE
+            0.0f,
+            (float)(4 * TILE_SIZE),
+            (float)TILE_SIZE,
+            (float)TILE_SIZE
         };
 
         Rectangle destination = {
-            xOffset + box.pos.x * SCREEN_TILE_SIZE,
-            yOffset + box.pos.y * SCREEN_TILE_SIZE,
-            SCREEN_TILE_SIZE,
-            SCREEN_TILE_SIZE
+            (float)(xOffset + box.pos.x * SCREEN_TILE_SIZE),
+            (float)(yOffset + box.pos.y * SCREEN_TILE_SIZE),
+            (float)SCREEN_TILE_SIZE,
+            (float)SCREEN_TILE_SIZE
         };
 
         DrawTexturePro(
@@ -91,17 +91,17 @@ void draw(Player player, Map map, int xOffset, int yOffset) {
     }
 
     Rectangle source = {
-        0,
-        0,
-        PLAYER_SPRITE_SIZE,
-        PLAYER_SPRITE_SIZE
+        0.0f,
+        0.0f,
+        (float)PLAYER_SPRITE_SIZE,
+        (float)PLAYER_SPRITE_SIZE
     };
 
     Rectangle destination = {
-        xOffset + player.pos.x * SCREEN_TILE_SIZE,
-        yOffset + player.pos.y * SCREEN_TILE_SIZE,
-        SCREEN_TILE_SIZE,
-        SCREEN_TILE_SIZE
+        (float)(xOffset + player.pos.x * SCREEN_TILE_SIZE),
+        (float)(yOffset + player.pos.y * SCREEN_TILE_SIZE),
+        (float)SCREEN_TILE_SIZE,
+        (float)SCREEN_TILE_SIZE
     };
 
     DrawTexturePro(

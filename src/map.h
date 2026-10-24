@@ -15,6 +15,8 @@ class Map {
         int width = 0;
         int height = 0;
 
+        Vector2 spawnPosition = {-1, -1};
+
         Texture2D texture;
 
         Box boxes[50];
@@ -27,7 +29,7 @@ class Map {
         bool isEmpty(int x, int y);
         bool isButton(int x, int y);
 
-        void loadBoxes(Box newBoxes[], int n);
+        void loadBoxes(tson::Map& tileson);
         void moveBox(Box* box, Direction direction);
         bool canMoveBox(Box box, Direction direction);
         Box* getBox(int x, int y);

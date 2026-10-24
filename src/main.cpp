@@ -18,17 +18,9 @@ int main(void) {
         return 1;
     }
 
-    Box boxes[] = {
-        {4, 4},
-        {3, 2},
-        {4, 8},
-        {8, 8}
-    };
-
-    map.loadBoxes(boxes, 4);
     map.texture = tilesetTexture;
 
-    Player player = {{map.width / 2, map.height / 2}, playerTexture};
+    Player player = {map.spawnPosition, playerTexture};
 
     const int xOffset = (SCREEN_WIDTH - map.width * SCREEN_TILE_SIZE) / 2;
     const int yOffset = (SCREEN_HEIGHT - map.height * SCREEN_TILE_SIZE) / 2;

@@ -23,19 +23,31 @@ bool Map::loadFromFile(const char* path) {
         return false;
 
     loadMap(*tilesonMap);
+    loadBoxes(*tilesonMap);
+
+    if (spawnPosition.x < 0 || spawnPosition.y < 0)
+        return false;
+
     return true;
 }
 
 void Map::loadMap(tson::Map& tileson) {
     width = tileson.getSize().x;
     height = tileson.getSize().y;
-    auto& layer = tileson.getLayers()[0];
+    spawnPosition = {-1, -1};
+
+    tson::Layer* floor = tileson.getLayer("Floor");
+    if (floor == nullptr)
+        return;
 
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
             int index = y * width + x;
-            int gid = layer.getData()[index];
+            int gid = floor->getData()[index];
             layout[y][x] = gid;
+
+            if (gid == 5)
+                spawnPosition = {(float)x, (float)y};
         }
     }
 }
@@ -45,19 +57,35 @@ bool Map::isWall(int x, int y) {
 }
 
 bool Map::isEmpty(int x, int y) {
-    return layout[y][x] == 6 || layout[y][x] == 4 || layout[y][x] == 7;
+    int gid = layout[y][x];
+    return gid == 6 || gid == 4 || gid == 7 || gid == 5;
 }
 
 bool Map::isButton(int x, int y) {
     return layout[y][x] == 4;
 }
 
-void Map::loadBoxes(Box newBoxes[], int n) {
-    boxCount = n;
+void Map::loadBoxes(tson::Map& tileson) {
+    boxCount = 0;
 
-    for (int i = 0; i < n; i++) {
-        Box box = newBoxes[i];
-        boxes[i] = box;
+    tson::Layer* boxesLayer = tileson.getLayer("Boxes");
+    if (boxesLayer == nullptr)
+        return;
+
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            int index = y * width + x;
+            uint32_t gid = boxesLayer->getData()[index];
+            if (gid == 0)
+                continue;
+
+            if (boxCount >= 50)
+                return;
+
+            boxes[boxCount].pos = {(float)x, (float)y};
+            boxes[boxCount].inPlace = layout[y][x] == 4;
+            boxCount++;
+        }
     }
 }
 
