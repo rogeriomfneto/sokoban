@@ -1,5 +1,5 @@
 #include "game.h"
-#include "constants.h"
+#include "game_setup.h"
 #include <raylib.h>
 #include <raymath.h>
 
@@ -21,6 +21,8 @@ void update(Player& player, Map& map) {
 }
 
 void draw(Player player, Map map, int xOffset, int yOffset) {
+    GameSetup& setup = getGameSetup();
+
     BeginDrawing();
     ClearBackground(BLACK);
 
@@ -33,23 +35,23 @@ void draw(Player player, Map map, int xOffset, int yOffset) {
 
             int localTileId = mapTile - 1;
 
-            int tilesetColumns = map.texture.width / TILE_SIZE;
+            int tilesetColumns = map.texture.width / setup.tileSize;
 
             int tileX = localTileId % tilesetColumns;
             int tileY = localTileId / tilesetColumns;
 
             Rectangle source = {
-                (float)(tileX * TILE_SIZE),
-                (float)(tileY * TILE_SIZE),
-                (float)TILE_SIZE,
-                (float)TILE_SIZE
+                (float)(tileX * setup.tileSize),
+                (float)(tileY * setup.tileSize),
+                (float)setup.tileSize,
+                (float)setup.tileSize
             };
 
             Rectangle destination = {
-                (float)(xOffset + x * SCREEN_TILE_SIZE),
-                (float)(yOffset + y * SCREEN_TILE_SIZE),
-                (float)SCREEN_TILE_SIZE,
-                (float)SCREEN_TILE_SIZE
+                (float)(xOffset + x * setup.screenTileSize),
+                (float)(yOffset + y * setup.screenTileSize),
+                (float)setup.screenTileSize,
+                (float)setup.screenTileSize
             };
 
             DrawTexturePro(
@@ -68,16 +70,16 @@ void draw(Player player, Map map, int xOffset, int yOffset) {
 
         Rectangle source = {
             0.0f,
-            (float)(4 * TILE_SIZE),
-            (float)TILE_SIZE,
-            (float)TILE_SIZE
+            (float)(4 * setup.tileSize),
+            (float)setup.tileSize,
+            (float)setup.tileSize
         };
 
         Rectangle destination = {
-            (float)(xOffset + box.pos.x * SCREEN_TILE_SIZE),
-            (float)(yOffset + box.pos.y * SCREEN_TILE_SIZE),
-            (float)SCREEN_TILE_SIZE,
-            (float)SCREEN_TILE_SIZE
+            (float)(xOffset + box.pos.x * setup.screenTileSize),
+            (float)(yOffset + box.pos.y * setup.screenTileSize),
+            (float)setup.screenTileSize,
+            (float)setup.screenTileSize
         };
 
         DrawTexturePro(
@@ -93,15 +95,15 @@ void draw(Player player, Map map, int xOffset, int yOffset) {
     Rectangle source = {
         0.0f,
         0.0f,
-        (float)PLAYER_SPRITE_SIZE,
-        (float)PLAYER_SPRITE_SIZE
+        (float)setup.playerSpriteSize,
+        (float)setup.playerSpriteSize
     };
 
     Rectangle destination = {
-        (float)(xOffset + player.pos.x * SCREEN_TILE_SIZE),
-        (float)(yOffset + player.pos.y * SCREEN_TILE_SIZE),
-        (float)SCREEN_TILE_SIZE,
-        (float)SCREEN_TILE_SIZE
+        (float)(xOffset + player.pos.x * setup.screenTileSize),
+        (float)(yOffset + player.pos.y * setup.screenTileSize),
+        (float)setup.screenTileSize,
+        (float)setup.screenTileSize
     };
 
     DrawTexturePro(

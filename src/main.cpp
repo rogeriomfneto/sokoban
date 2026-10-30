@@ -1,12 +1,19 @@
 #include <iostream>
 #include <raylib.h>
-#include "constants.h"
 #include "game.h"
+#include "game_setup.h"
 #include "map.h"
 #include "player.h"
 
 int main(void) {
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Sokoban");
+    if (!loadGameSetup("assets/game-setup.json")) {
+        std::cout << "Failed to load game setup\n";
+        return 1;
+    }
+
+    GameSetup& setup = getGameSetup();
+
+    InitWindow(setup.screenWidth, setup.screenHeight, "Sokoban");
     SetTargetFPS(60);
 
     Texture2D tilesetTexture = LoadTexture("assets/tilesets/map.png");
@@ -22,8 +29,8 @@ int main(void) {
 
     Player player = {map.spawnPosition, playerTexture};
 
-    const int xOffset = (SCREEN_WIDTH - map.width * SCREEN_TILE_SIZE) / 2;
-    const int yOffset = (SCREEN_HEIGHT - map.height * SCREEN_TILE_SIZE) / 2;
+    const int xOffset = (setup.screenWidth - map.width * setup.screenTileSize) / 2;
+    const int yOffset = (setup.screenHeight - map.height * setup.screenTileSize) / 2;
 
     while (!WindowShouldClose()) {
         update(player, map);

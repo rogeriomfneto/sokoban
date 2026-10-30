@@ -5,7 +5,7 @@ LDFLAGS = -Llib
 LIBS = -lraylib
 
 TARGET = sokoban
-SOURCES = src/main.cpp src/direction.cpp src/map.cpp src/player.cpp src/game.cpp
+SOURCES = src/main.cpp src/direction.cpp src/map.cpp src/player.cpp src/game.cpp src/game_setup.cpp
 
 DEL_CMD = rm
 
