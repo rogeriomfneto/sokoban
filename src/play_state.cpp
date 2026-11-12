@@ -1,9 +1,33 @@
-#include "game.h"
+#include "play_state.h"
 #include "game_setup.h"
+#include "menu_state.h"
+#include <iostream>
 #include <raylib.h>
 #include <raymath.h>
 
-void update(Player& player, Map& map) {
+PlayState::PlayState(const char* levelName) : levelName(levelName) {}
+
+void PlayState::enter() {
+    GameSetup& setup = getGameSetup();
+
+    std::string path = "assets/levels/" + levelName + ".tmj";
+    if (!map.loadFromFile(path.c_str())) {
+        std::cout << "Failed to load map\n";
+        CloseWindow();
+        return;
+    }
+
+    map.texture = LoadTexture(setup.tilesetPath.c_str());
+    player = {map.spawnPosition, LoadTexture(setup.playerSpritePath.c_str())};
+
+    xOffset = (setup.screenWidth - map.width * setup.screenTileSize) / 2;
+    yOffset = (setup.screenHeight - map.height * setup.screenTileSize) / 2;
+}
+
+GameState* PlayState::update() {
+    if (IsKeyPressed(KEY_ESCAPE))
+        return new MenuState();
+
     if (IsKeyPressed(KEY_RIGHT))
         player.tryMove(map, Direction::Right);
 
@@ -18,9 +42,11 @@ void update(Player& player, Map& map) {
 
     player.pos.x = Clamp(player.pos.x, 0, map.width - 1);
     player.pos.y = Clamp(player.pos.y, 0, map.height - 1);
+
+    return nullptr;
 }
 
-void draw(Player& player, Map& map, int xOffset, int yOffset) {
+void PlayState::draw() {
     GameSetup& setup = getGameSetup();
 
     BeginDrawing();

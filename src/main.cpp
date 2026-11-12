@@ -1,9 +1,8 @@
 #include <iostream>
 #include <raylib.h>
-#include "game.h"
 #include "game_setup.h"
-#include "map.h"
-#include "player.h"
+#include "game_state.h"
+#include "menu_state.h"
 
 int main(void) {
     if (!loadGameSetup("assets/game-setup.json")) {
@@ -14,29 +13,25 @@ int main(void) {
     GameSetup& setup = getGameSetup();
 
     InitWindow(setup.screenWidth, setup.screenHeight, "Sokoban");
+    SetExitKey(KEY_NULL);
     SetTargetFPS(60);
 
-    Texture2D tilesetTexture = LoadTexture(setup.tilesetPath.c_str());
-    Texture2D playerTexture = LoadTexture(setup.playerSpritePath.c_str());
-
-    Map map;
-    if (!map.loadFromFile("assets/levels/level0.tmj")) {
-        std::cout << "Failed to load map\n";
-        return 1;
-    }
-
-    map.texture = tilesetTexture;
-
-    Player player = {map.spawnPosition, playerTexture};
-
-    const int xOffset = (setup.screenWidth - map.width * setup.screenTileSize) / 2;
-    const int yOffset = (setup.screenHeight - map.height * setup.screenTileSize) / 2;
+    GameState* state = new MenuState();
+    state->enter();
 
     while (!WindowShouldClose()) {
-        update(player, map);
-        draw(player, map, xOffset, yOffset);
+        GameState* next = state->update();
+        if (next != nullptr) {
+            delete state;
+            state = next;
+            state->enter();
+        }
+        if (WindowShouldClose())
+            break;
+        state->draw();
     }
 
+    delete state;
     CloseWindow();
 
     return 0;
