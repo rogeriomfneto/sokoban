@@ -10,7 +10,7 @@ PlayState::PlayState(const char* levelName) : levelName(levelName) {}
 void PlayState::enter() {
     GameSetup& setup = getGameSetup();
 
-    std::string path = "assets/levels/" + levelName + ".tmj";
+    std::string path = setup.levelsPath + levelName + ".tmj";
     if (!map.loadFromFile(path.c_str())) {
         std::cout << "Failed to load map\n";
         CloseWindow();

@@ -5,5 +5,11 @@
   "playerSpriteSize": 16,
   "screenTileSize": 50,
   "tilesetPath": "assets/tilesets/map.png",
-  "playerSpritePath": "assets/sprites/player-idle.png"
+  "playerSpritePath": "assets/sprites/player-idle.png",
+  "levelsPath": "assets/levels/",
+  "menuSelectedFontSize": 40,
+  "menuUnselectedFontSize": 32,
+  "menuLineHeight": 48,
+  "menuSelectedColor": [255, 255, 255, 255],
+  "menuUnselectedColor": [130, 130, 130, 255]
 }

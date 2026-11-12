@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <raylib.h>
 
 struct GameSetup {
     int screenWidth = 0;
@@ -10,6 +11,12 @@ struct GameSetup {
     int screenTileSize = 0;
     std::string tilesetPath;
     std::string playerSpritePath;
+    std::string levelsPath;
+    int menuSelectedFontSize = 0;
+    int menuUnselectedFontSize = 0;
+    int menuLineHeight = 0;
+    Color menuSelectedColor = WHITE;
+    Color menuUnselectedColor = GRAY;
 };
 
 GameSetup& getGameSetup();

@@ -37,21 +37,18 @@ GameState* MenuState::update() {
 
 void MenuState::draw() {
     GameSetup& setup = getGameSetup();
-    const int selectedFontSize = 40;
-    const int unselectedFontSize = 32;
-    const int lineHeight = 48;
-    const int startY = (setup.screenHeight - itemCount * lineHeight) / 2;
+    const int startY = (setup.screenHeight - itemCount * setup.menuLineHeight) / 2;
 
     BeginDrawing();
     ClearBackground(BLACK);
 
     for (int i = 0; i < itemCount; i++) {
         bool selected = i == selectedIndex;
-        int fontSize = selected ? selectedFontSize : unselectedFontSize;
-        Color color = selected ? WHITE : GRAY;
+        int fontSize = selected ? setup.menuSelectedFontSize : setup.menuUnselectedFontSize;
+        Color color = selected ? setup.menuSelectedColor : setup.menuUnselectedColor;
         int textWidth = MeasureText(items[i].text, fontSize);
         int x = (setup.screenWidth - textWidth) / 2;
-        int y = startY + i * lineHeight + (lineHeight - fontSize) / 2;
+        int y = startY + i * setup.menuLineHeight + (setup.menuLineHeight - fontSize) / 2;
 
         DrawText(items[i].text, x, y, fontSize, color);
         if (selected)
