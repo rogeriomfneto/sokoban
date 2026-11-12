@@ -20,7 +20,7 @@ void update(Player& player, Map& map) {
     player.pos.y = Clamp(player.pos.y, 0, map.height - 1);
 }
 
-void draw(Player player, Map map, int xOffset, int yOffset) {
+void draw(Player& player, Map& map, int xOffset, int yOffset) {
     GameSetup& setup = getGameSetup();
 
     BeginDrawing();

@@ -16,8 +16,8 @@ int main(void) {
     InitWindow(setup.screenWidth, setup.screenHeight, "Sokoban");
     SetTargetFPS(60);
 
-    Texture2D tilesetTexture = LoadTexture("assets/tilesets/map.png");
-    Texture2D playerTexture = LoadTexture("assets/sprites/player-idle.png");
+    Texture2D tilesetTexture = LoadTexture(setup.tilesetPath.c_str());
+    Texture2D playerTexture = LoadTexture(setup.playerSpritePath.c_str());
 
     Map map;
     if (!map.loadFromFile("assets/levels/level0.tmj")) {

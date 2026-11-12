@@ -3,5 +3,7 @@
   "screenHeight": 768,
   "tileSize": 16,
   "playerSpriteSize": 16,
-  "screenTileSize": 50
+  "screenTileSize": 50,
+  "tilesetPath": "assets/tilesets/map.png",
+  "playerSpritePath": "assets/sprites/player-idle.png"
 }
