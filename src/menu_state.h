@@ -1,13 +1,16 @@
 #pragma once
 
 #include "game_state.h"
+#include <string>
+
+class MenuState;
 
 class MenuItem {
     public:
-        const char* text;
-        GameState* (*onSelectFn)();
+        std::string text;
+        GameState* (*onSelectFn)(MenuState* menu);
 
-        GameState* onSelect();
+        GameState* onSelect(MenuState* menu);
 };
 
 class MenuState : public GameState {
@@ -16,7 +19,12 @@ class MenuState : public GameState {
         GameState* update() override;
         void draw() override;
 
-        MenuItem items[2];
-        int itemCount = 2;
+        void loadDefaultMenu();
+        void loadLevels();
+
+        static const int maxItems = 10;
+
+        MenuItem items[maxItems];
+        int itemCount = 0;
         int selectedIndex = 0;
 };

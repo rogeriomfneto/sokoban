@@ -40,6 +40,9 @@ GameState* PlayState::update() {
     if (IsKeyPressed(KEY_DOWN))
         player.tryMove(map, Direction::Down);
 
+    if (IsKeyPressed(KEY_R))
+        this->enter();
+
     player.pos.x = Clamp(player.pos.x, 0, map.width - 1);
     player.pos.y = Clamp(player.pos.y, 0, map.height - 1);
 
