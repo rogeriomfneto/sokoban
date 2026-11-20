@@ -1,8 +1,8 @@
 #pragma once
 
 #include <raylib.h>
-#include "direction.h"
-#include "map.h"
+#include "direction.hpp"
+#include "map.hpp"
 
 class Player {
     public:

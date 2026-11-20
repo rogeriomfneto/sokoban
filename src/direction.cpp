@@ -1,4 +1,4 @@
-#include "direction.h"
+#include "direction.hpp"
 
 Vector2 applyDirectionToPosition(Vector2 pos, Direction direction) {
     switch (direction) {

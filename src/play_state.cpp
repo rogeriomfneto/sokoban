@@ -1,6 +1,6 @@
-#include "play_state.h"
-#include "game_setup.h"
-#include "menu_state.h"
+#include "play_state.hpp"
+#include "game_setup.hpp"
+#include "menu_state.hpp"
 #include <iostream>
 #include <raylib.h>
 #include <raymath.h>

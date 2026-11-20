@@ -1,4 +1,4 @@
-#include "player.h"
+#include "player.hpp"
 
 void Player::tryMove(Map& map, Direction direction) {
     Vector2 newPos = applyDirectionToPosition(pos, direction);

@@ -1,8 +1,8 @@
 #pragma once
 
 #include <raylib.h>
-#include "box.h"
-#include "direction.h"
+#include "box.hpp"
+#include "direction.hpp"
 
 namespace tson {
 class Map;

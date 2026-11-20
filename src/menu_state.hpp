@@ -1,6 +1,6 @@
 #pragma once
 
-#include "game_state.h"
+#include "game_state.hpp"
 #include <string>
 
 class MenuState;

@@ -1,6 +1,6 @@
-#include "menu_state.h"
-#include "game_setup.h"
-#include "play_state.h"
+#include "menu_state.hpp"
+#include "game_setup.hpp"
+#include "play_state.hpp"
 #include <raylib.h>
 
 GameState* MenuItem::onSelect(MenuState* menu) {
@@ -56,7 +56,7 @@ void MenuState::loadLevels() {
     int levelCount = 0;
     int maxLevels = maxItems - 1;
 
-    for (unsigned int i = 0; i < files.count; i++) {
+    for (int i = 0; i < files.count; i++) {
         if (levelCount >= maxLevels) {
             break;
         }

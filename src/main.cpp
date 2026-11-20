@@ -1,8 +1,8 @@
 #include <iostream>
 #include <raylib.h>
-#include "game_setup.h"
-#include "game_state.h"
-#include "menu_state.h"
+#include "game_setup.hpp"
+#include "game_state.hpp"
+#include "menu_state.hpp"
 
 int main(void) {
     if (!loadGameSetup("assets/game-setup.json")) {

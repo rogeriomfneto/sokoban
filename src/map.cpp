@@ -3,7 +3,7 @@
 #include <filesystem>
 #include <memory>
 #include <tileson.hpp>
-#include "map.h"
+#include "map.hpp"
 
 bool Map::loadFromFile(const char* path) {
     int dataSize = 0;

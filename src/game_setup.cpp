@@ -1,4 +1,4 @@
-#include "game_setup.h"
+#include "game_setup.hpp"
 #include "json.hpp"
 #include <iostream>
 #include <raylib.h>

@@ -1,9 +1,9 @@
 #pragma once
 
 #include <string>
-#include "game_state.h"
-#include "map.h"
-#include "player.h"
+#include "game_state.hpp"
+#include "map.hpp"
+#include "player.hpp"
 
 class PlayState : public GameState {
     public:
