@@ -43,6 +43,8 @@ bool loadGameSetup(const char* path) {
             json.at("menuUnselectedColor").at(2).get<unsigned char>(),
             json.at("menuUnselectedColor").at(3).get<unsigned char>()
         };
+        setup.completedHeaderText = json.at("completedHeaderText").get<std::string>();
+        setup.completedCaptionText = json.at("completedCaptionText").get<std::string>();
     } catch (const nlohmann::json::exception& error) {
         std::cerr << "Failed to parse game setup: " << error.what() << "\n";
         UnloadFileText(text);

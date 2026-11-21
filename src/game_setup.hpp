@@ -17,6 +17,8 @@ struct GameSetup {
     int menuLineHeight = 0;
     Color menuSelectedColor = WHITE;
     Color menuUnselectedColor = GRAY;
+    std::string completedHeaderText;
+    std::string completedCaptionText;
 };
 
 GameSetup& getGameSetup();

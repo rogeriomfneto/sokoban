@@ -11,5 +11,7 @@
   "menuUnselectedFontSize": 32,
   "menuLineHeight": 48,
   "menuSelectedColor": [255, 255, 255, 255],
-  "menuUnselectedColor": [130, 130, 130, 255]
+  "menuUnselectedColor": [130, 130, 130, 255],
+  "completedHeaderText": "You got it!",
+  "completedCaptionText": "Press space/enter to continue"
 }

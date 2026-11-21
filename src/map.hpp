@@ -17,7 +17,7 @@ class Map {
 
         Vector2 spawnPosition = {-1, -1};
 
-        Texture2D texture;
+        Texture2D texture = {};
 
         Box boxes[50];
         int boxCount = 0;
